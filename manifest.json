@@ -1,10 +1,10 @@
 {
-  "name": "Element Screenshot Grabber",
+  "name": "Element Snapper",
   "description": "Hover, click, and capture an element as a PNG image",
   "version": "1.0",
   "manifest_version": 3,
   "action": {
-    "default_title": "Element Screenshot"
+    "default_title": "Element Snapper"
   },
   "permissions": [
     "activeTab",

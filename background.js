@@ -2,7 +2,7 @@
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "captureElement",
-    title: "Capture Element Screenshot",
+    title: "Element Snapper",
     contexts: ["page", "selection", "image", "link"]
   });
   
