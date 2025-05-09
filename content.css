@@ -2,11 +2,32 @@
   outline: 2px solid #ff4081 !important;
   outline-offset: 2px !important;
   cursor: pointer !important;
-  position: relative;
-  z-index: 10000;
+  position: relative !important;
+  z-index: 10000 !important;
 }
 
 .element-selector-selected {
   outline: 3px solid #2196f3 !important;
   outline-offset: 2px !important;
+}
+
+.element-dimensions-display {
+  position: fixed !important;
+  background-color: rgba(33, 150, 243, 0.9) !important;
+  color: white !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  pointer-events: none !important;
+  z-index: 2147483647 !important; /* Highest possible z-index */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  transform: translate(-50%, -100%) !important;
+  margin-top: -5px !important;
+  user-select: none !important;
 }

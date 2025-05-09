@@ -1,11 +1,15 @@
 // Global variables
 let currentHighlightedElement = null;
 let isActive = false;
+let dimensionsDisplay = null;
 
 // Function to enable element selection
 function enableElementSelector() {
   isActive = true;
   document.body.style.cursor = 'crosshair';
+  
+  // Create dimensions display element
+  createDimensionsDisplay();
   
   // Create and show notification
   showNotification("Hover over an element and click to capture it");
@@ -15,6 +19,27 @@ function enableElementSelector() {
   
   // Add click event listener to the document
   document.addEventListener('click', handleElementClick);
+}
+
+// Function to create dimensions display element
+function createDimensionsDisplay() {
+  // Remove any existing dimension display
+  const existingDisplay = document.getElementById('element-dimensions-display');
+  if (existingDisplay) {
+    existingDisplay.remove();
+  }
+  
+  // Create a new dimensions display element
+  dimensionsDisplay = document.createElement('div');
+  dimensionsDisplay.id = 'element-dimensions-display';
+  dimensionsDisplay.className = 'element-dimensions-display';
+  dimensionsDisplay.style.display = 'none';
+  
+  // Append to document body to ensure it's not affected by other elements' styles
+  document.body.appendChild(dimensionsDisplay);
+  
+  // Make sure it's on top of everything
+  dimensionsDisplay.style.zIndex = '2147483647';
 }
 
 // Function to show a temporary notification
@@ -51,17 +76,73 @@ function showNotification(message) {
 function handleMouseOver(event) {
   if (!isActive) return;
   
-  // Prevent event from reaching the elements beneath
-  event.stopPropagation();
-  
-  // Remove highlight from previous element
-  if (currentHighlightedElement) {
-    currentHighlightedElement.classList.remove('element-selector-highlight');
+  try {
+    // Prevent event from reaching the elements beneath
+    event.stopPropagation();
+    
+    // Ignore mouseover on the dimensions display itself
+    if (event.target === dimensionsDisplay || event.target.parentNode === dimensionsDisplay) {
+      return;
+    }
+    
+    // Get the target element, excluding the dimensions display
+    let targetElement = event.target;
+    
+    // Remove highlight from previous element
+    if (currentHighlightedElement) {
+      currentHighlightedElement.classList.remove('element-selector-highlight');
+    }
+    
+    // Set current element and add highlight
+    currentHighlightedElement = targetElement;
+    currentHighlightedElement.classList.add('element-selector-highlight');
+    
+    // Update dimensions display with a small delay to ensure proper rendering
+    setTimeout(() => {
+      updateDimensionsDisplay(currentHighlightedElement);
+    }, 10);
+  } catch (error) {
+    console.error('Error in handleMouseOver:', error);
   }
+}
+
+// Function to update dimensions display
+function updateDimensionsDisplay(element) {
+  if (!dimensionsDisplay) return;
   
-  // Set current element and add highlight
-  currentHighlightedElement = event.target;
-  currentHighlightedElement.classList.add('element-selector-highlight');
+  try {
+    // Get element's bounding rectangle
+    const rect = element.getBoundingClientRect();
+    
+    // Skip updating if element has no dimensions
+    if (rect.width === 0 && rect.height === 0) return;
+    
+    // Round dimensions to whole pixels
+    const width = Math.round(rect.width);
+    const height = Math.round(rect.height);
+    
+    // Calculate position (centered above the element)
+    const centerX = rect.left + (rect.width / 2);
+    const topY = Math.max(rect.top, 0); // Ensure it's not positioned off-screen
+    
+    // Update text content with dimensions
+    dimensionsDisplay.textContent = `${width} × ${height} px`;
+    
+    // Position the label using fixed positioning relative to the viewport
+    dimensionsDisplay.style.left = `${centerX}px`;
+    dimensionsDisplay.style.top = `${topY}px`;
+    dimensionsDisplay.style.display = 'flex';
+    
+    // If the label would be off the top of the viewport, position it below the element instead
+    if (topY < 30) {
+      dimensionsDisplay.style.top = `${rect.bottom}px`;
+      dimensionsDisplay.style.transform = 'translate(-50%, 5px)';
+    } else {
+      dimensionsDisplay.style.transform = 'translate(-50%, -100%)';
+    }
+  } catch (error) {
+    console.error('Error updating dimensions display:', error);
+  }
 }
 
 // Function to handle element click
@@ -120,6 +201,16 @@ function disableElementSelector() {
   document.body.style.cursor = 'default';
   document.removeEventListener('mouseover', handleMouseOver);
   document.removeEventListener('click', handleElementClick);
+  
+  // Hide dimensions display
+  if (dimensionsDisplay) {
+    dimensionsDisplay.style.display = 'none';
+  }
+  
+  // Remove highlight from current element if any
+  if (currentHighlightedElement) {
+    currentHighlightedElement.classList.remove('element-selector-highlight');
+  }
 }
 
 // Function to crop image and download it
@@ -176,6 +267,11 @@ function cleanupSelection() {
   if (currentHighlightedElement) {
     currentHighlightedElement.classList.remove('element-selector-selected');
     currentHighlightedElement = null;
+  }
+  
+  // Hide dimensions display
+  if (dimensionsDisplay) {
+    dimensionsDisplay.style.display = 'none';
   }
 }
 
