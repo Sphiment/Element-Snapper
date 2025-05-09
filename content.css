@@ -1,0 +1,12 @@
+.element-selector-highlight {
+  outline: 2px solid #ff4081 !important;
+  outline-offset: 2px !important;
+  cursor: pointer !important;
+  position: relative;
+  z-index: 10000;
+}
+
+.element-selector-selected {
+  outline: 3px solid #2196f3 !important;
+  outline-offset: 2px !important;
+}
