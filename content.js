@@ -244,18 +244,21 @@ function cropAndDownloadImage(imageDataUrl, rect) {
     
     // Get the cropped image as a data URL
     const croppedImageDataUrl = canvas.toDataURL('image/png');
-    
-    // Download the image
+      // Download the image
     chrome.runtime.sendMessage({
       action: 'downloadImage',
       data: {
         dataUrl: croppedImageDataUrl,
         filename: `element-screenshot-${Date.now()}.png`
       }
+    }, () => {
+      // Ensure cleanup happens after the download is initiated
+      // This helps eliminate timing issues that could leave the dimensions visible
+      setTimeout(() => {
+        cleanupSelection();
+        showNotification("Screenshot saved successfully!");
+      }, 100);
     });
-    
-    // Cleanup
-    cleanupSelection();
   };
   
   // Set the image source to the data URL
@@ -269,9 +272,17 @@ function cleanupSelection() {
     currentHighlightedElement = null;
   }
   
-  // Hide dimensions display
+  // Completely remove the dimensions display to ensure it doesn't persist
   if (dimensionsDisplay) {
     dimensionsDisplay.style.display = 'none';
+    // Also remove it from the DOM to ensure it's gone
+    try {
+      document.body.removeChild(dimensionsDisplay);
+      dimensionsDisplay = null;
+    } catch (e) {
+      // In case it's already been removed
+      console.log('Dimensions display already removed from DOM');
+    }
   }
 }
 
